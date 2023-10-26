@@ -1,5 +1,5 @@
-export const priority = {
-  high: "high",
-  medium: "medium",
-  low: "low",
+export const priorityEnums = {
+  HIGH: "High",
+  MEDIUM: "Medium",
+  LOW: "Low",
 };
