@@ -1,13 +1,13 @@
 const dao = require("../Dao/tasks");
 module.exports = {
-  getAllTasks: () => dao.getAllTasks(),
+  getAllTasks: async () => await dao.getAllTasks(),
 
-  createTask: (taskData) => dao.createTask(taskData),
+  createTask: async (taskData) => await dao.createTask(taskData),
 
   updateTask: async (taskId, taskData) => {
     const whereObj = { id: taskId };
     await dao.updateTask(taskData, whereObj);
   },
 
-  deleteTask: (taskId) => dao.deleteTask({ id: taskId }),
+  deleteTask: async (taskId) => await dao.deleteTask({ id: taskId }),
 };
