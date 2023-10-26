@@ -5,7 +5,7 @@ const controller = require("../controller/tasks");
 router
   .route("/tasks")
   .get(controller.getAllTasks)
-  .post(controller.getAllTasks)
+  .post(controller.createTask)
   .put(controller.updateTask)
   .delete(controller.deleteTask);
 
