@@ -52,8 +52,8 @@ const initialState = {
   priority: priorityEnums.LOW,
 };
 
-function CreateTaskComponent({ updateTasks }) {
-  const [task, setTask] = useState(initialState);
+function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
+  const [task, setTask] = useState(taskToBeEdited || initialState);
   const [isCreating, setIsCreating] = useState(false);
 
   const handleChange = (event) => {
@@ -66,11 +66,19 @@ function CreateTaskComponent({ updateTasks }) {
 
   const handleSubmit = async () => {
     setIsCreating(true);
-    axios
-      .post(`http://localhost:4000/api/tasks`, task)
-      .then(({ data: task }) => {
-        updateTasks(task);
-        setTask(initialState);
+    axios({
+      url: `http://localhost:4000/api/tasks?${
+        taskToBeEdited ? `id=${taskToBeEdited.id}` : ""
+      } `,
+      method: taskToBeEdited ? "put" : "post",
+      data: task,
+    })
+      .then(() => {
+        if (taskToBeEdited) handleClose(task);
+        else {
+          updateTasks(task);
+          setTask(initialState);
+        }
       })
       .catch((err) => console.log(err))
       .finally(() => setIsCreating(false));
@@ -114,15 +122,26 @@ function CreateTaskComponent({ updateTasks }) {
           </Select>
         </FormControl>
       </Box>
-
-      <Button
-        disabled={isCreating}
-        sx={sxStyles.btn}
-        variant="contained"
-        onClick={handleSubmit}
-      >
-        Create Task
-      </Button>
+      <Box sx={{ display: "flex", gap: 2 }}>
+        {taskToBeEdited ? (
+          <Button
+            disabled={isCreating}
+            sx={sxStyles.btn}
+            variant="contained"
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+        ) : null}
+        <Button
+          disabled={isCreating}
+          sx={sxStyles.btn}
+          variant="contained"
+          onClick={handleSubmit}
+        >
+          {taskToBeEdited ? "Update Task" : "Create Task"}
+        </Button>
+      </Box>
     </Box>
   );
 }
