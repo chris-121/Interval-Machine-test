@@ -4,7 +4,7 @@ module.exports = {
     try {
       const { body: taskData } = req;
       const createdTask = await taskServices.createTask(taskData);
-      res.send({ status: 200, data: createdTask });
+      res.send(createdTask);
     } catch (error) {
       res.send({ status: 500, error });
     }
@@ -12,7 +12,7 @@ module.exports = {
   getAllTasks: async (req, res) => {
     try {
       const tasks = await taskServices.getAllTasks();
-      res.send({ status: 200, data: tasks });
+      res.send(tasks);
     } catch (error) {
       res.send({ status: 500, error });
     }
@@ -22,7 +22,7 @@ module.exports = {
       const { body: taskData } = req;
       const taskId = req.query.id;
       const updatedTask = await taskServices.updateTask(taskId, taskData);
-      res.send({ status: 200, data: updatedTask });
+      res.send(updatedTask);
     } catch (error) {
       res.send({ status: 500, error });
     }
@@ -31,6 +31,7 @@ module.exports = {
     try {
       const taskId = req.query.id;
       await taskServices.deleteTask(taskId);
+      res.send();
     } catch (error) {
       res.send({ status: 500, error });
     }

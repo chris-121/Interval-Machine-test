@@ -5,9 +5,9 @@ module.exports = {
   createTask: async (taskData) => await dao.createTask(taskData),
 
   updateTask: async (taskId, taskData) => {
-    const whereObj = { id: taskId };
+    const whereObj = { where: { id: taskId } };
     await dao.updateTask(taskData, whereObj);
   },
 
-  deleteTask: async (taskId) => await dao.deleteTask({ id: taskId }),
+  deleteTask: async (taskId) => await dao.deleteTask({ where: { id: taskId } }),
 };

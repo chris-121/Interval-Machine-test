@@ -1,21 +1,38 @@
 const taskModel = require("../model/Task");
 module.exports = {
   getAllTasks: async () => {
-    const tasks = await taskModel.findAll({});
-    return tasks;
+    try {
+      const tasks = await taskModel.findAll({});
+      return tasks;
+    } catch (error) {
+      error;
+    }
   },
 
   createTask: async (taskData) => {
-    const task = await taskModel.create(taskData);
-    return task;
+    try {
+      const task = await taskModel.create(taskData);
+      return task;
+    } catch (error) {
+      return error;
+    }
   },
 
   updateTask: async (taskData, whereObj) => {
-    const updatedTask = await taskModel.update(taskData, whereObj);
-    return updatedTask;
+    try {
+      const updatedTask = await taskModel.update(taskData, whereObj);
+      return updatedTask;
+    } catch (error) {
+      return error;
+    }
   },
 
   deleteTask: async (whereObj) => {
-    return await taskModel.destroy(whereObj);
+    try {
+      await taskModel.destroy(whereObj);
+      return;
+    } catch (error) {
+      return error;
+    }
   },
 };

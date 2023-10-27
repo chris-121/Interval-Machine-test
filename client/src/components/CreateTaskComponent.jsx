@@ -22,7 +22,6 @@ const sxStyles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-
     width: 1000,
     height: 100,
   },
@@ -52,7 +51,8 @@ const initialState = {
   description: "",
   priority: priorityEnums.LOW,
 };
-function CreateTaskComponent(updateTasks) {
+
+function CreateTaskComponent({ updateTasks }) {
   const [task, setTask] = useState(initialState);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -66,18 +66,14 @@ function CreateTaskComponent(updateTasks) {
 
   const handleSubmit = async () => {
     setIsCreating(true);
-    console.log(task);
     axios
       .post(`http://localhost:4000/api/tasks`, task)
-      .then(() => {
-        // updateTasks(task);
-        console.log("created successfully");
-        setIsCreating(false);
+      .then(({ data: task }) => {
+        updateTasks(task);
+        setTask(initialState);
       })
-      .catch((err) => {
-        setIsCreating(false);
-        console.log(err);
-      });
+      .catch((err) => console.log(err))
+      .finally(() => setIsCreating(false));
   };
 
   return (
@@ -119,7 +115,12 @@ function CreateTaskComponent(updateTasks) {
         </FormControl>
       </Box>
 
-      <Button sx={sxStyles.btn} variant="contained" onClick={handleSubmit}>
+      <Button
+        disabled={isCreating}
+        sx={sxStyles.btn}
+        variant="contained"
+        onClick={handleSubmit}
+      >
         Create Task
       </Button>
     </Box>
