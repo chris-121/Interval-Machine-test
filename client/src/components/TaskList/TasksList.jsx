@@ -6,20 +6,23 @@ import {
   FormControl,
   Select,
   MenuItem,
-  Divider,
+  Link,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import CreateTaskComponent from "../CreateTaskComponent";
 import DeleteConfirmation from "./DeleteConfirmation";
+import ShowTask from "./ShowTask";
+
 import axios from "axios";
 import { priorityEnums } from "../../Enums/Task";
 import { DateTime } from "luxon";
 
 const sxStyles = {
   root: {
-    backgroundColor: "#90bbd1",
+    backgroundColor: "#DDE6ED",
     position: "relative",
     marginTop: 4,
+    borderRadius: 4,
   },
   item: {
     width: 1000,
@@ -41,11 +44,12 @@ const sxStyles = {
   },
 };
 function TasksList({ tasks, setTasks }) {
-  console.log(tasks);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [taskToBeDeleted, setTaskToBeDeleted] = useState({});
   const [selectedPriority, setSelectedPriority] = useState(priorityEnums.ALL);
   const [taskToBeEdited, setTaskToBeEdited] = useState({});
+  const [showOnlyThisTask, setShowOnlyThisTask] = useState("");
+
   const handleDeleteButtonClick = (task) => {
     setShowDeleteConfirmation(true);
     setTaskToBeDeleted(task);
@@ -65,10 +69,10 @@ function TasksList({ tasks, setTasks }) {
   const handleOnChange = (event) => {
     const { value } = event.target;
     setSelectedPriority(value);
+    setShowOnlyThisTask({});
   };
 
   const handleClose = (updatedTask) => {
-    console.log(updatedTask);
     if (updatedTask)
       setTasks((prev) =>
         prev.map((prevTask) => {
@@ -86,6 +90,13 @@ function TasksList({ tasks, setTasks }) {
         handleClose={() => setShowDeleteConfirmation(false)}
         deleteTask={deleteTask}
       />
+      <ShowTask
+        task={showOnlyThisTask}
+        open={!!showOnlyThisTask.id}
+        handleClose={() => setShowOnlyThisTask({})}
+        deleteTask={deleteTask}
+      />
+
       <Box sx={sxStyles.header}>
         <FormControl>
           Show Tasks of priority:{" "}
@@ -114,12 +125,17 @@ function TasksList({ tasks, setTasks }) {
           ) : selectedPriority === priorityEnums.ALL ||
             selectedPriority === task.priority ? (
             <Box key={index} sx={sxStyles.item}>
-              <Box>
+              <Box sx={{ m: 2 }}>
                 <Typography variant={"h5"}>{task.name}</Typography>
                 <p>{task.description}</p>
-                <p>Date: {new DateTime(task.date).toFormat("dd/mm/yyyy")}</p>
-                <p>Time:{new DateTime(task.time).toFormat("hh:mm a")}</p>
+                <p>
+                  Date: {DateTime.fromISO(task.date).toFormat("dd/mm/yyyy")}
+                </p>
+                <p>Time:{DateTime.fromISO(task.time).toFormat("hh:mm a")}</p>
                 {task.priority} priority
+                <br />
+                <br />
+                <Link onClick={() => setShowOnlyThisTask(task)}>Show task</Link>
               </Box>
               <Box sx={{ display: "flex", ...sxStyles.img }}>
                 {task.image ? <img alt={"No Image"} src={task.image} /> : null}

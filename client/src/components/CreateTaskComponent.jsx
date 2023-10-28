@@ -16,8 +16,9 @@ import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 
 const sxStyles = {
   root: {
+    borderRadius: 4,
     padding: 2,
-    backgroundColor: "#90bbd1",
+    backgroundColor: "#DDE6ED",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -45,6 +46,10 @@ const sxStyles = {
   },
   btn: {
     backgroundColor: "#1a354a",
+    "&:hover": {
+      backgroundColor: "#1a354a",
+      opacity: "70%",
+    },
   },
   fontStyle: {
     color: "#fff",
@@ -57,18 +62,19 @@ const initialState = {
 };
 
 function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
-  const dateVar = taskToBeEdited?.date
+  const taskDate = taskToBeEdited?.date
     ? new DateTime(taskToBeEdited?.date)
     : DateTime.now();
 
-  const timeVar = taskToBeEdited?.date
+  const taskTime = taskToBeEdited?.date
     ? new DateTime(taskToBeEdited?.date)
     : DateTime.now();
   const [task, setTask] = useState(taskToBeEdited || initialState);
   const [image, setImage] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [date, setDate] = useState(dateVar);
-  const [time, setTime] = useState(timeVar);
+  const [date, setDate] = useState(taskDate);
+  const [time, setTime] = useState(taskTime);
+  const [err, setErr] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -88,6 +94,14 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
   };
 
   const handleSubmit = async () => {
+    if (!task.name) {
+      setErr("Task Name cannot be empty");
+      return;
+    }
+    if (!task.description) {
+      setErr("Task Description cannot be empty");
+      return;
+    }
     setIsCreating(true);
     axios({
       url: `http://localhost:4000/api/tasks?${
@@ -104,7 +118,10 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
         }
       })
       .catch((err) => console.log(err))
-      .finally(() => setIsCreating(false));
+      .finally(() => {
+        setErr("");
+        setIsCreating(false);
+      });
   };
 
   return (
@@ -129,41 +146,58 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
           />
         </Box>
         <LocalizationProvider dateAdapter={AdapterLuxon}>
-          <DatePicker
-            label="Date"
-            value={date}
-            onChange={(newValue) => setDate(newValue)}
-          />
-          <TimePicker
-            label="Time"
-            value={time}
-            onChange={(newValue) => setTime(newValue)}
-          />
+          <Box>
+            Date:
+            <DatePicker
+              sx={sxStyles.textField}
+              value={date}
+              onChange={(newValue) => setDate(newValue)}
+            />
+          </Box>
+
+          <Box>
+            Time:
+            <TimePicker
+              sx={sxStyles.textField}
+              value={time}
+              onChange={(newValue) => setTime(newValue)}
+            />
+          </Box>
         </LocalizationProvider>
+        <FormControl>
+          Task priority:{" "}
+          <Select
+            sx={sxStyles.selectField}
+            labelId="Priority"
+            value={task.priority}
+            name={"priority"}
+            onChange={handleChange}
+          >
+            {Object.keys(priorityEnums)
+              .filter(
+                (priorityEnum) =>
+                  priorityEnums[priorityEnum] !== priorityEnums.ALL
+              )
+              .map((priorityEnum, index) => (
+                <MenuItem key={index} value={priorityEnums[priorityEnum]}>
+                  {priorityEnums[priorityEnum]}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
       </Box>
-      <FormControl>
-        Task priority:{" "}
-        <Select
-          sx={sxStyles.selectField}
-          labelId="Priority"
-          value={task.priority}
-          name={"priority"}
-          onChange={handleChange}
-        >
-          {Object.keys(priorityEnums)
-            .filter(
-              (priorityEnum) =>
-                priorityEnums[priorityEnum] !== priorityEnums.ALL
-            )
-            .map((priorityEnum, index) => (
-              <MenuItem key={index} value={priorityEnums[priorityEnum]}>
-                {priorityEnums[priorityEnum]}
-              </MenuItem>
-            ))}
-        </Select>
-        <p>upload image</p>
-        <input type="file" onChange={handleChangeImage} />
-      </FormControl>
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <p style={{ color: "#6fa2f2" }}>
+            Click here to Upload Image &nbsp;
+            <input
+              // style={{ display: "none" }}
+              type="file"
+              onChange={handleChangeImage}
+            />
+          </p>
+        </Box>
+      </Box>
       <Box sx={{ display: "flex", gap: 2 }}>
         {taskToBeEdited ? (
           <Button
@@ -184,6 +218,7 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
           {taskToBeEdited ? "Update Task" : "Create Task"}
         </Button>
       </Box>
+      <p style={{ color: "red" }}>{err}</p>
     </Box>
   );
 }
