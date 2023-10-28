@@ -1,4 +1,4 @@
-# Interval-Machine-test
+## Interval-Machine-test
 
 ## Installation
 
@@ -23,3 +23,6 @@ npm run dev
 # Start the server
 cd server
 npm start
+
+# Postman API Collection
+https://api.postman.com/collections/20976819-79c3a647-b5a2-4eea-aa66-6224abdb6b79?access_key=PMAT-01HDVSHZBE6YMV6ANBNMH4JF6P
