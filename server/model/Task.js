@@ -19,9 +19,18 @@ const Task = sequelize.define(
     priority: {
       type: DataTypes.STRING,
     },
+    date: {
+      type: DataTypes.DATE,
+    },
+    time: {
+      type: DataTypes.DATE,
+    },
+    image: {
+      type: DataTypes.STRING,
+    },
   },
   {
-    timestamps: false,
+    timestamps: true,
   }
 );
 

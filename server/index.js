@@ -17,6 +17,6 @@ app.listen(process.env.port, () => {
   console.log(`app listening on port ${process.env.port}!`);
   sequelize.authenticate().then(() => {
     console.log("db connected successfully");
-    TaskModel.sync();
+    TaskModel.sync({ force: true });
   });
 });
