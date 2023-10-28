@@ -3,7 +3,7 @@
 ## Installation
 
 # Clone the repository
-git clone https://github.com/yourusername/your-repo.git
+git clone https://github.com/chris-121/Interval-Machine-test.git
 
 # Navigate to the project directory
 cd Interval-Machine-test
