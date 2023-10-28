@@ -16,6 +16,12 @@ npm i
 cd client
 npm i
 
+# Provide database credentials in Env
+port=4000
+dbName=intervaldb
+dbUserName=
+dbPassword=
+
 # Start the client
 cd client
 npm run dev
