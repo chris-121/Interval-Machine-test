@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { priorityEnums } from "../Enums/Task";
 import axios from "axios";
+import { DateTime } from "luxon";
 import {
   Box,
   Button,
@@ -9,6 +10,9 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 
 const sxStyles = {
   root: {
@@ -53,8 +57,18 @@ const initialState = {
 };
 
 function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
+  const dateVar = taskToBeEdited?.date
+    ? new DateTime(taskToBeEdited?.date)
+    : DateTime.now();
+
+  const timeVar = taskToBeEdited?.date
+    ? new DateTime(taskToBeEdited?.date)
+    : DateTime.now();
   const [task, setTask] = useState(taskToBeEdited || initialState);
+  const [image, setImage] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [date, setDate] = useState(dateVar);
+  const [time, setTime] = useState(timeVar);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -64,6 +78,15 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
     }));
   };
 
+  const handleChangeImage = (e) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(e.target.files[0]);
+    reader.onload = () => {
+      console.log(reader.result);
+      setImage(reader.result);
+    };
+  };
+
   const handleSubmit = async () => {
     setIsCreating(true);
     axios({
@@ -71,12 +94,12 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
         taskToBeEdited ? `id=${taskToBeEdited.id}` : ""
       } `,
       method: taskToBeEdited ? "put" : "post",
-      data: task,
+      data: { ...task, date, time, image },
     })
-      .then(() => {
-        if (taskToBeEdited) handleClose(task);
+      .then(({ data: createdTask }) => {
+        if (taskToBeEdited) handleClose({ ...task, date, time, image });
         else {
-          updateTasks(task);
+          updateTasks(createdTask);
           setTask(initialState);
         }
       })
@@ -105,23 +128,42 @@ function CreateTaskComponent({ updateTasks, taskToBeEdited, handleClose }) {
             placeholder={"Task description"}
           />
         </Box>
-        <FormControl>
-          Task priority:{" "}
-          <Select
-            sx={sxStyles.selectField}
-            labelId="Priority"
-            value={task.priority}
-            name={"priority"}
-            onChange={handleChange}
-          >
-            {Object.keys(priorityEnums).map((priorityEnum) => (
-              <MenuItem value={priorityEnums[priorityEnum]}>
+        <LocalizationProvider dateAdapter={AdapterLuxon}>
+          <DatePicker
+            label="Date"
+            value={date}
+            onChange={(newValue) => setDate(newValue)}
+          />
+          <TimePicker
+            label="Time"
+            value={time}
+            onChange={(newValue) => setTime(newValue)}
+          />
+        </LocalizationProvider>
+      </Box>
+      <FormControl>
+        Task priority:{" "}
+        <Select
+          sx={sxStyles.selectField}
+          labelId="Priority"
+          value={task.priority}
+          name={"priority"}
+          onChange={handleChange}
+        >
+          {Object.keys(priorityEnums)
+            .filter(
+              (priorityEnum) =>
+                priorityEnums[priorityEnum] !== priorityEnums.ALL
+            )
+            .map((priorityEnum, index) => (
+              <MenuItem key={index} value={priorityEnums[priorityEnum]}>
                 {priorityEnums[priorityEnum]}
               </MenuItem>
             ))}
-          </Select>
-        </FormControl>
-      </Box>
+        </Select>
+        <p>upload image</p>
+        <input type="file" onChange={handleChangeImage} />
+      </FormControl>
       <Box sx={{ display: "flex", gap: 2 }}>
         {taskToBeEdited ? (
           <Button

@@ -18,25 +18,32 @@ const sxStyles = {
 };
 export default function Home() {
   const [tasks, setTasks] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
     setIsFetching(true);
     axios
       .get("http://localhost:4000/api/tasks")
-      .then(({ data: tasks }) => setTasks(tasks))
+      .then(({ data: tasks }) => {
+        tasks.sort((a, b) => {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          return dateA - dateB;
+        });
+        setTasks(tasks);
+      })
       .catch(() => console.log("failed to fetch tasks"))
       .finally(() => setIsFetching(false));
   }, []);
 
   const updateTasks = (task) => {
-    setTasks((prev) => [task, ...prev]);
+    setTasks((prev) => [...prev, task]);
   };
   return (
     <Box sx={sxStyles.root}>
+      <CreateTaskComponent updateTasks={updateTasks} />
       {!isFetching ? (
         <>
-          <CreateTaskComponent updateTasks={updateTasks} />
           <TasksList tasks={tasks} setTasks={setTasks} />
         </>
       ) : (
